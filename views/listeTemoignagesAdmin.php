@@ -28,7 +28,7 @@ $title = "Liste des temoignage ";
                         <td><?= $temoignage->email ?></td>
                         <td><?= $temoignage->avis ?></td>
                        <td>
-                        <a href="index.php?action=destroyTemoignage&id=<?=$temoignage->id?>" class="btn btn-danger">supprimer</a>
+                        <a href="index.php?action=destroyTemoignageAdmin&id=<?=$temoignage->id?>" class="btn btn-danger">supprimer</a>
                     </td>
                     </tr>
                     <?php endforeach; ?>

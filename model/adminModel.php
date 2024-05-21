@@ -1,4 +1,5 @@
 <?php
+// inclusion de ficher 
 require_once "connexionBD.php";
 class Admin {
     private $db;

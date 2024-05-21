@@ -43,7 +43,7 @@ public function createProduit()
     $resultat->execute([$name, $description, $categorie_id, $stock, $prix, $image_path]);
     return $resultat;
 }
-
+// modifier le produit
 public function updateProduit()
 {
     $id = $_GET['id'];
@@ -84,6 +84,8 @@ public function destroyProduit()
     $resultat->execute([$id]);
     return $resultat;
 }
+
+// Diminuer le stock lors du passage de commande
 public function quantiteDeStock($contenuCommand) {
     foreach ($contenuCommand as $table) {
         if (isset($table['produit_id'])) {
@@ -94,5 +96,16 @@ public function quantiteDeStock($contenuCommand) {
             $stmt->execute([$quantite, $idProduit]);
         }
     }
+}
+
+
+// Vérifie si le stock peut être augmenté
+public function verifierAugmenterStock($id, $quantite) {
+    $sql = 'SELECT stock >= ? AS disponible FROM PRODUIT WHERE ID = ?';
+    $resultat = $this->db->prepare($sql);
+    $resultat->execute([$quantite, $id]);
+    $disponible = $resultat->fetchColumn();
+
+    return (bool)$disponible;
 }
 }

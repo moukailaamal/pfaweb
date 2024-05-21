@@ -8,6 +8,7 @@ class Panier {
         if (!isset($_SESSION['panier'])) {
             $_SESSION['panier'] = [];
         }
+        $this->produitModel = new Produit();
     }
     
 
@@ -28,21 +29,25 @@ public  function indexPanier() {
 }
 
 
-public  function ajouterProduit() {
+public function ajouterProduit() {
     // Récupération des données du produit à ajouter au panier depuis $_POST
     $produit_id = $_POST['id'];
-    $prix=$_POST['prix'];
-    $image_path=$_POST['image_path'];
-    $name=$_POST['name'];
-  
-   
+    $prix = $_POST['prix'];
+    $image_path = $_POST['image_path'];
+    $name = $_POST['name'];
+
     // Vérifie si le produit est déjà dans le panier
     $produit_existe = false;
     foreach ($_SESSION['panier'] as &$produit) {
-        if ($produit['produit_id'] == $produit_id) {
-            $produit_existe = true;
-            $produit['quantite'] += 1;
-            break;
+        if ($produit['produit_id'] === $produit_id) {
+            if ($this->produitModel->verifierAugmenterStock($produit['produit_id'], $produit['quantite'] + 1)) {
+                $produit_existe = true;
+                $produit['quantite'] += 1;
+                break;
+            } else {
+                $produit_existe = true; // Empêche l'ajout d'un nouveau produit
+                break;
+            }
         }
     }
 
@@ -52,12 +57,12 @@ public  function ajouterProduit() {
             'produit_id' => $produit_id,
             'quantite' => 1,
             'prix' => $prix,
-            'image_path'=> $image_path,
-           'name'=> $name,
-
+            'image_path' => $image_path,
+            'name' => $name,
         ];
     }
 }
+
 
 // Calcule le prix total du panier
 public  function getPrixTotalPanier() {
@@ -82,13 +87,19 @@ public  function destroyProduitPanier() {
 }
 
 // Augmente la quantité d'un produit dans le panier
-public  function augmenterQuantite() {
-   
+public function augmenterQuantite() {
     $produit_id = $_GET['id'] ?? '';
-    foreach ($_SESSION['panier'] as &$produit) {
-        if ($produit['produit_id'] === $produit_id) {
-            $produit['quantite'] += 1;
-            break;
+
+    // Vérifie si le panier est défini et non vide
+    if (!empty($_SESSION['panier'])) {
+        foreach ($_SESSION['panier'] as &$produit) {
+            // verifier si le meme produit et si on peut le augmenter 
+            if ($produit['produit_id'] === $produit_id && 
+                $this->produitModel->verifierAugmenterStock($produit['produit_id'], $produit['quantite'] + 1)) {
+
+                $produit['quantite'] += 1;
+                break;
+            }
         }
     }
 }
